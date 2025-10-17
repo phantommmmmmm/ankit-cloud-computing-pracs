@@ -1,16 +1,23 @@
+import logging
 from flask import Flask
-# If `entrypoint` is not defined in app.yaml, App Engine will look for an app
-# called `app` in `main.py`.
+
 app = Flask(__name__)
-@app.route("/")
-def hello():
-    """Return a friendly HTTP greeting.
-    Returns:
-        A string with the words 'Hello World!'.
-    """
-    return "Hello World!"
+
+# Enable debug logging
+app.logger.setLevel(logging.DEBUG)
+
+@app.route('/')
+def home():
+    app.logger.debug("Home route accessed")
+    return "Hello, World!"
+
+# Catch all exceptions to log them
+@app.errorhandler(Exception)
+def handle_exception(e):
+    app.logger.error("Exception occurred", exc_info=e)
+    return "Internal Server Error", 500
+
 if __name__ == "__main__":
-    # This is used when running locally only. When deploying to Google App
-    # Engine, a webserver process such as Gunicorn will serve the app. You
-    # can configure startup instructions by adding `entrypoint` to app.yaml.
-    app.run(host="127.0.0.1", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)
+
+
